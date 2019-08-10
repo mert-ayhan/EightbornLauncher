@@ -8,7 +8,7 @@ namespace EightbornLauncher
 {
     class Variables
     {
-        public static string version = "v 1.0.4";
+        public static string version = "v 1.0.5";
         public static string version_link = "http://eightbornv.site/eightborn-launcher/version.txt";
         public static string launcher_link = "http://eightbornv.site/eightborn-launcher/launcher.exe";
         public static string webbrowser_link = "http://eightbornv.site/eightborn-launcher/html/index.html";
