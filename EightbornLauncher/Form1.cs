@@ -21,7 +21,6 @@ namespace EightbornLauncher
 
         public Form1()
         {
-
             InitializeComponent();
 
             Random rnd = new Random();
@@ -131,7 +130,7 @@ namespace EightbornLauncher
                     progressBar.Visible = false;
                 }
             }
-            return;
+
             Variables.setVariables();
 
             DialogResult result;
