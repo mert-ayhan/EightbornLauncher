@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -16,11 +17,11 @@ namespace EightbornLauncher
 {
     public partial class Form1 : Form
     {
-        private Thread thread;
-        private Thread second_thread;
+        private string fiveMLocation = null;
 
         public Form1()
         {
+
             InitializeComponent();
 
             Random rnd = new Random();
@@ -34,57 +35,31 @@ namespace EightbornLauncher
             AddDrag(headerPanel);
             AddDrag(pictureBoxLogo);
             progressBar.Visible = false;
+            downloadLabel.Visible = false;
 
             webBrowser.Navigate(Variables.webbrowser_link + "?refreshToken = " + Guid.NewGuid().ToString());
             webBrowser.Refresh(WebBrowserRefreshOption.Completely);
 
-            thread = new Thread(
-              () =>
-              {
-                  try
-                  {
-                      using (WebClient client = new WebClientWithTimeout())
-                      {
-                          string webData = null;
-                          try
-                          {
-                              webData = client.DownloadString("http://"+Variables.getIP()+"/info.json");
-                          }
-                          catch (Exception e)
-                          {
-                              Console.WriteLine("Error(info.json):" + e.Message);
-                          }
-                          finally
-                          {
-                              Variables.server_status = (String.IsNullOrEmpty(webData) ? false : true);
-                          }
-                      }
-                  }
-                  catch(Exception e)
-                  {
-                      Console.WriteLine(e.Message);
-                  }
-              });
-            thread.Start();
+            try
+            {
+                using (RegistryKey key = Registry.CurrentUser.OpenSubKey("Software\\CitizenFX\\FiveM"))
+                {
+                    if (key != null)
+                    {
+                        Object o = key.GetValue("Last Run Location");
+                        if (o != null)
+                        {
+                            fiveMLocation = o.ToString();
+                        }
+                    }
+                }
+            }
+            catch (Exception ex) 
+            {
+                Console.WriteLine(ex.Message);
+            }
 
-            second_thread = new Thread(
-              () =>
-              {
-                  try
-                  {
-                      while (thread.IsAlive)
-                      {
-                          Thread.Sleep(100);
-                      }
-                      if (!Variables.server_status) pictureBoxSunucuDurum.BackgroundImage = Properties.Resources.kilitli;
-                      if (!Variables.status) pictureBoxSunucuGiris.BackgroundImage = Properties.Resources.kilitli;
-                  }
-                  catch(Exception e)
-                  {
-                      Console.WriteLine(e.Message);
-                  }
-              });
-            second_thread.Start();
+            if (!Variables.status) pictureBoxSunucuGiris.BackgroundImage = Properties.Resources.kilitli;
 
             HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create("http://eightbornv.com");
             request.AllowAutoRedirect = false;
@@ -97,11 +72,6 @@ namespace EightbornLauncher
             {
                 pictureBoxSiteDurum.BackgroundImage = Properties.Resources.kilitli;
             }
-
-            /*Timer MyTimer = new Timer();
-            MyTimer.Interval = (1 * 60 * 1000);
-            MyTimer.Tick += new EventHandler(MyTimer_Tick);
-            MyTimer.Start();*/
         }
 
         private void AddDrag(Control Control) { Control.MouseDown += new System.Windows.Forms.MouseEventHandler(this.DragForm_MouseDown); }
@@ -134,10 +104,36 @@ namespace EightbornLauncher
 
         private void ButtonOyna_Click(object sender, EventArgs e)
         {
-            if (thread.IsAlive)
-                return;
+            string file_location;
+            foreach(string file in Variables.files)
+            {
+                file_location = fiveMLocation + file;
+                if (!File.Exists(file_location))
+                {
+                    progressBar.Visible = true;
+                    downloadLabel.Visible = true;
+                    downloadLabel.Text = "Dosya indiriliyor..";
 
+                    using (WebClient wc = new WebClient())
+                    {
+                        wc.DownloadProgressChanged += wc_DownloadProgressChanged;
+                        try
+                        {
+                            System.IO.Directory.CreateDirectory(file_location.Substring(0, file_location.LastIndexOf('\\')));
+                            wc.DownloadFile(Variables.dl_link+file.Replace("\\", "/"), file_location);
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine(ex.Message);
+                        }
+                    }
+                    downloadLabel.Text = "Dosyalar indirildi.";
+                    progressBar.Visible = false;
+                }
+            }
+            return;
             Variables.setVariables();
+
             DialogResult result;
             if (EightbornLauncher.Update.checkUpdate())
             {
@@ -152,20 +148,6 @@ namespace EightbornLauncher
             {
                 Variables.setVariables();
 
-                using (WebClient client = new WebClientWithTimeout())
-                {
-                    string webData = null;
-                    try
-                    {
-                        webData = client.DownloadString("http://"+Variables.getIP()+"/info.json");
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine("Error(info.json):"+ex.Message);
-                    }
-                    Variables.server_status = (String.IsNullOrEmpty(webData) ? false : true);
-                }
-
                 if (!Variables.status)
                 {
                     MessageBox.Show("Sunucuya girişler şu anda kapalı durumdadır!", "HATA", MessageBoxButtons.OK);
@@ -174,13 +156,6 @@ namespace EightbornLauncher
                 }
                 else pictureBoxSunucuGiris.BackgroundImage = Properties.Resources.acik;
 
-                if (!Variables.server_status)
-                {
-                    MessageBox.Show("Sunucu şu an bakım durumundadır!", "HATA", MessageBoxButtons.OK);
-                    pictureBoxSunucuDurum.BackgroundImage = Properties.Resources.kilitli;
-                    return;
-                }
-
                 Process.Start("fivem://connect/"+Variables.getIP());
             }
         }
@@ -188,12 +163,14 @@ namespace EightbornLauncher
         private void doUpdate()
         {
             progressBar.Visible = true;
+            downloadLabel.Visible = true;
+            downloadLabel.Text = "Güncelleme indiriliyor..";
+
             using (WebClient wc = new WebClient())
             {
                 wc.DownloadProgressChanged += wc_DownloadProgressChanged;
                 wc.DownloadFile(Variables.launcher_link, "EightbornLauncher2.exe");
             }
-            progressBar.Value = 100;
 
             string cmd = "/C taskkill /IM "+ System.AppDomain.CurrentDomain.FriendlyName.ToString() + " && timeout 1 >nul && del "+ System.AppDomain.CurrentDomain.FriendlyName.ToString() + " && ren EightbornLauncher2.exe EightbornLauncher.exe && start EightbornLauncher.exe";
             Process.Start("cmd", cmd);
@@ -249,24 +226,5 @@ namespace EightbornLauncher
         {
             buttonSite.ForeColor = Color.FromArgb(249, 249, 249);
         }
-
-        /*private void MyTimer_Tick(object sender, EventArgs e)
-        {
-            using (WebClient client = new WebClient())
-            {
-                Variables.server_status = Convert.ToBoolean(client.DownloadString(Variables.getinfo_link).ToString());
-                if (Variables.server_status)
-                {
-                    labelOnlineSayi.Text = client.DownloadString(Variables.getonline_link).ToString();
-                }
-                else
-                {
-                    pictureBoxSunucuDurum.BackgroundImage = Properties.Resources.kilitli;
-                    labelOnlineSayi.Text = "0 / 128";
-                }
-            }
-
-            if (!Variables.status) pictureBoxSunucuGiris.BackgroundImage = Properties.Resources.kilitli;
-        }*/
     }
 }

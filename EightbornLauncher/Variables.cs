@@ -8,13 +8,30 @@ namespace EightbornLauncher
 {
     class Variables
     {
-        public static string version = "v 1.0.4";
+        public static string version = "v 1.0.5";
         public static string version_link = "http://eightbornv.site/eightborn-launcher/version.txt";
         public static string launcher_link = "http://eightbornv.site/eightborn-launcher/launcher.exe";
         public static string webbrowser_link = "http://eightbornv.site/eightborn-launcher/html/index.html";
         //public static string getinfo_link = "http://eightbornv.site/eightborn-launcher/getinfo1.php";
         //public static string getonline_link = "http://eightbornv.site/eightborn-launcher/getonline1.php";
         public static string variables_link = "http://eightbornv.site/eightborn-launcher/variables.txt";
+        public static string dl_link = "http://eightbornv.site/eightborn-launcher/dl/";
+        public static string[] files = new string[] {
+             "citizen\\common\\data\\ui\\mapzoomdata.meta",
+             "citizen\\platform\\data\\cdimages\\scaleform_generic\\minimap_0_0.ytd",
+             "citizen\\platform\\data\\cdimages\\scaleform_generic\\minimap_0_1.ytd",
+             "citizen\\platform\\data\\cdimages\\scaleform_generic\\minimap_1_0.ytd",
+             "citizen\\platform\\data\\cdimages\\scaleform_generic\\minimap_1_1.ytd",
+             "citizen\\platform\\data\\cdimages\\scaleform_generic\\minimap_2_0.ytd",
+             "citizen\\platform\\data\\cdimages\\scaleform_generic\\minimap_2_1.ytd",
+             "citizen\\platform\\data\\cdimages\\scaleform_generic\\minimap_lod_128.ytd",
+             "citizen\\platform\\data\\cdimages\\scaleform_generic\\minimap_sea_0_0.ytd",
+             "citizen\\platform\\data\\cdimages\\scaleform_generic\\minimap_sea_0_1.ytd",
+             "citizen\\platform\\data\\cdimages\\scaleform_generic\\minimap_sea_1_0.ytd",
+             "citizen\\platform\\data\\cdimages\\scaleform_generic\\minimap_sea_1_1.ytd",
+             "citizen\\platform\\data\\cdimages\\scaleform_generic\\minimap_sea_2_0.ytd",
+             "citizen\\platform\\data\\cdimages\\scaleform_generic\\minimap_sea_2_1.ytd"
+        };
         public static bool status = true;
         public static bool server_status = true;
         private static string server_ip = "185.126.178.56:30120";

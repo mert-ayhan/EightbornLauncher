@@ -30,6 +30,7 @@
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             this.mainPanel = new System.Windows.Forms.Panel();
+            this.downloadLabel = new System.Windows.Forms.Label();
             this.progressBar = new System.Windows.Forms.ProgressBar();
             this.buttonSite = new System.Windows.Forms.Button();
             this.buttonOyna = new System.Windows.Forms.Button();
@@ -57,6 +58,7 @@
             // 
             this.mainPanel.BackgroundImage = global::EightbornLauncher.Properties.Resources._853486;
             this.mainPanel.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.mainPanel.Controls.Add(this.downloadLabel);
             this.mainPanel.Controls.Add(this.progressBar);
             this.mainPanel.Controls.Add(this.buttonSite);
             this.mainPanel.Controls.Add(this.buttonOyna);
@@ -75,11 +77,23 @@
             this.mainPanel.Size = new System.Drawing.Size(800, 450);
             this.mainPanel.TabIndex = 0;
             // 
+            // downloadLabel
+            // 
+            this.downloadLabel.AutoSize = true;
+            this.downloadLabel.BackColor = System.Drawing.Color.Transparent;
+            this.downloadLabel.Font = new System.Drawing.Font("Roboto", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(162)));
+            this.downloadLabel.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(249)))), ((int)(((byte)(249)))), ((int)(((byte)(249)))));
+            this.downloadLabel.Location = new System.Drawing.Point(192, 404);
+            this.downloadLabel.Name = "downloadLabel";
+            this.downloadLabel.Size = new System.Drawing.Size(104, 13);
+            this.downloadLabel.TabIndex = 14;
+            this.downloadLabel.Text = "Dosyalar indiriliyor..";
+            // 
             // progressBar
             // 
             this.progressBar.BackColor = System.Drawing.SystemColors.Control;
             this.progressBar.ForeColor = System.Drawing.Color.Green;
-            this.progressBar.Location = new System.Drawing.Point(118, 415);
+            this.progressBar.Location = new System.Drawing.Point(118, 422);
             this.progressBar.Name = "progressBar";
             this.progressBar.Size = new System.Drawing.Size(265, 23);
             this.progressBar.TabIndex = 13;
@@ -322,6 +336,7 @@
         private System.Windows.Forms.Button buttonSite;
         private System.Windows.Forms.ProgressBar progressBar;
         private System.Windows.Forms.Panel mainPanel;
+        private System.Windows.Forms.Label downloadLabel;
     }
 }
 
