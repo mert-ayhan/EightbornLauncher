@@ -94,8 +94,10 @@
             this.progressBar.BackColor = System.Drawing.SystemColors.Control;
             this.progressBar.ForeColor = System.Drawing.Color.Green;
             this.progressBar.Location = new System.Drawing.Point(118, 422);
+            this.progressBar.MarqueeAnimationSpeed = 0;
             this.progressBar.Name = "progressBar";
             this.progressBar.Size = new System.Drawing.Size(265, 23);
+            this.progressBar.Style = System.Windows.Forms.ProgressBarStyle.Marquee;
             this.progressBar.TabIndex = 13;
             // 
             // buttonSite

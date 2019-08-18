@@ -27,14 +27,13 @@ namespace EightbornLauncher
             int bIndex = rnd.Next(Variables.backgrounds.Length);
             mainPanel.BackgroundImage = Variables.backgrounds[bIndex];
 
-            Variables.setVariables();
+            Variables.SetVariables();
             labelVersion.Text = Variables.version;
 
             AddDrag(mainPanel);
             AddDrag(headerPanel);
             AddDrag(pictureBoxLogo);
-            progressBar.Visible = false;
-            downloadLabel.Visible = false;
+            downloadLabel.Text = "";
 
             webBrowser.Navigate(Variables.webbrowser_link + "?refreshToken = " + Guid.NewGuid().ToString());
             webBrowser.Refresh(WebBrowserRefreshOption.Completely);
@@ -103,49 +102,44 @@ namespace EightbornLauncher
 
         private void ButtonOyna_Click(object sender, EventArgs e)
         {
+            BeginInvoke(new MethodInvoker(() => { progressBar.MarqueeAnimationSpeed = 30; downloadLabel.Text = "Dosyalar kontrol ediliyor.."; buttonOyna.Enabled = false; }));
             string file_location;
-            foreach(string file in Variables.files)
+            foreach (string file in Variables.files)
             {
                 file_location = fiveMLocation + file;
                 if (!File.Exists(file_location))
                 {
-                    progressBar.Visible = true;
-                    downloadLabel.Visible = true;
-                    downloadLabel.Text = "Dosya indiriliyor..";
-
                     using (WebClient wc = new WebClient())
                     {
-                        wc.DownloadProgressChanged += wc_DownloadProgressChanged;
                         try
                         {
                             System.IO.Directory.CreateDirectory(file_location.Substring(0, file_location.LastIndexOf('\\')));
-                            wc.DownloadFile(Variables.dl_link+file.Replace("\\", "/"), file_location);
+                            wc.DownloadFile(Variables.dl_link + file.Replace("\\", "/"), file_location);
                         }
                         catch (Exception ex)
                         {
                             Console.WriteLine(ex.Message);
                         }
                     }
-                    downloadLabel.Text = "Dosyalar indirildi.";
-                    progressBar.Visible = false;
                 }
             }
+            BeginInvoke(new MethodInvoker(() => { progressBar.MarqueeAnimationSpeed = 0; downloadLabel.Text = "Dosyalar kontrol edildi."; buttonOyna.Enabled = true; }));
 
-            Variables.setVariables();
+            Variables.SetVariables();
 
             DialogResult result;
             if (EightbornLauncher.Update.checkUpdate())
             {
                 result = MessageBox.Show("Oyuna bağlanabilmeniz için launcher güncellemesi gerekli.\nGüncelleştirmek istiyor musunuz?", "Güncelleme Gerekli", MessageBoxButtons.YesNo);
-                if(result == DialogResult.Yes)
+                if (result == DialogResult.Yes)
                 {
-                    doUpdate();
+                    DoUpdate();
                     buttonOyna.Enabled = false;
                 }
             }
             else
             {
-                Variables.setVariables();
+                Variables.SetVariables();
 
                 if (!Variables.status)
                 {
@@ -155,11 +149,11 @@ namespace EightbornLauncher
                 }
                 else pictureBoxSunucuGiris.BackgroundImage = Properties.Resources.acik;
 
-                Process.Start("fivem://connect/"+Variables.getIP());
+                Process.Start("fivem://connect/" + Variables.GetIP());
             }
         }
 
-        private void doUpdate()
+        private void DoUpdate()
         {
             progressBar.Visible = true;
             downloadLabel.Visible = true;
@@ -167,17 +161,11 @@ namespace EightbornLauncher
 
             using (WebClient wc = new WebClient())
             {
-                wc.DownloadProgressChanged += wc_DownloadProgressChanged;
                 wc.DownloadFile(Variables.launcher_link, "EightbornLauncher2.exe");
             }
 
             string cmd = "/C taskkill /IM "+ System.AppDomain.CurrentDomain.FriendlyName.ToString() + " && timeout 1 >nul && del "+ System.AppDomain.CurrentDomain.FriendlyName.ToString() + " && ren EightbornLauncher2.exe EightbornLauncher.exe && start EightbornLauncher.exe";
             Process.Start("cmd", cmd);
-        }
-
-        private void wc_DownloadProgressChanged(object sender, DownloadProgressChangedEventArgs e)
-        {
-            progressBar.Value = e.ProgressPercentage;
         }
 
         private void ButtonSite_Click(object sender, EventArgs e)

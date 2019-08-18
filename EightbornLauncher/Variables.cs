@@ -32,7 +32,7 @@ namespace EightbornLauncher
         };
         public static bool status = true;
         public static bool server_status = true;
-        private static string server_ip = "185.126.178.56:30120";
+        private static readonly string server_ip = "185.126.178.56:30120";
         public static System.Drawing.Bitmap[] backgrounds = new System.Drawing.Bitmap[]
             {
                 Properties.Resources._707058,
@@ -42,12 +42,12 @@ namespace EightbornLauncher
                 Properties.Resources._853486
             };
 
-        public static string getIP()
+        public static string GetIP()
         {
             return server_ip;
         }
 
-        public static void setVariables()
+        public static void SetVariables()
         {
             using (WebClient client = new WebClientWithTimeout())
             {
