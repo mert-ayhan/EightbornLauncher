@@ -8,6 +8,7 @@ using System.Windows.Forms;
 using System.Threading;
 using System.Xml.Linq;
 using System.Xml;
+using System.ComponentModel;
 
 namespace EightbornLauncher
 {
@@ -107,9 +108,10 @@ namespace EightbornLauncher
             WindowState = FormWindowState.Minimized;
         }
 
-        async private void ButtonOyna_Click(object sender, EventArgs e)
+        private void ButtonOyna_Click(object sender, EventArgs e)
         {
-            this.BeginInvoke((MethodInvoker)delegate {
+            this.BeginInvoke((MethodInvoker)delegate
+            {
                 progressBar.MarqueeAnimationSpeed = 30; downloadLabel.Text = "Dosyalar kontrol ediliyor.."; buttonOyna.Enabled = false;
                 progressBar.Refresh(); downloadLabel.Refresh(); buttonOyna.Refresh();
             });
@@ -135,7 +137,8 @@ namespace EightbornLauncher
                         }
                     }
                 }
-                this.BeginInvoke((MethodInvoker)delegate {
+                this.BeginInvoke((MethodInvoker)delegate
+                {
                     progressBar.MarqueeAnimationSpeed = 0; downloadLabel.Text = "Dosyalar kontrol edildi."; buttonOyna.Enabled = true;
                     progressBar.Refresh(); downloadLabel.Refresh(); buttonOyna.Refresh();
                 });
@@ -180,13 +183,24 @@ namespace EightbornLauncher
             {
                 using (WebClient wc = new WebClient())
                 {
-                    wc.DownloadFile(Variables.launcher_link, "EightbornLauncher2.exe");
+                    try
+                    {
+                        wc.DownloadFileAsync(new Uri(Variables.launcher_link), "EightbornLauncher2.exe");
+                        wc.DownloadFileCompleted += wc_DownloadFileCompleted;
+                    }
+                    catch(Exception)
+                    {
+                    }
                 }
 
-                string cmd = "/C taskkill /IM " + System.AppDomain.CurrentDomain.FriendlyName.ToString() + " && timeout 1 >nul && del " + System.AppDomain.CurrentDomain.FriendlyName.ToString() + " && ren EightbornLauncher2.exe EightbornLauncher.exe && start EightbornLauncher.exe";
-                Process.Start("cmd", cmd);
             });
             thr.Start();
+        }
+
+        private void wc_DownloadFileCompleted(object sender, AsyncCompletedEventArgs e)
+        {
+            string cmd = "/C taskkill /IM " + System.AppDomain.CurrentDomain.FriendlyName.ToString() + " && timeout 1 >nul && del " + System.AppDomain.CurrentDomain.FriendlyName.ToString() + " && ren EightbornLauncher2.exe EightbornLauncher.exe && start EightbornLauncher.exe";
+            Process.Start("cmd", cmd);
         }
 
         private void ButtonSite_Click(object sender, EventArgs e)
