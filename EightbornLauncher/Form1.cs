@@ -5,6 +5,9 @@ using System.Drawing;
 using System.IO;
 using System.Net;
 using System.Windows.Forms;
+using System.Threading;
+using System.Xml.Linq;
+using System.Xml;
 
 namespace EightbornLauncher
 {
@@ -63,6 +66,17 @@ namespace EightbornLauncher
             {
                 pictureBoxSiteDurum.BackgroundImage = Properties.Resources.kilitli;
             }
+
+            var doc = XDocument.Load(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)+ "\\Rockstar Games\\GTA V\\settings.xml");
+            var address = doc.Root.Element("graphics").Element("CityDensity").Attribute("value");
+            address.Value = "0.000000";
+            address = doc.Root.Element("graphics").Element("PedVarietyMultiplier").Attribute("value");
+            address.Value = "0.000000";
+            address = doc.Root.Element("graphics").Element("VehicleVarietyMultiplier").Attribute("value");
+            address.Value = "0.000000";
+            address = doc.Root.Element("graphics").Element("LodScale").Attribute("value");
+            address.Value = "0.700000";
+            doc.Save(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "\\Rockstar Games\\GTA V\\settings.xml");
         }
 
         private void AddDrag(Control Control) { Control.MouseDown += new System.Windows.Forms.MouseEventHandler(this.DragForm_MouseDown); }
@@ -93,30 +107,40 @@ namespace EightbornLauncher
             WindowState = FormWindowState.Minimized;
         }
 
-        private void ButtonOyna_Click(object sender, EventArgs e)
+        async private void ButtonOyna_Click(object sender, EventArgs e)
         {
-            BeginInvoke(new MethodInvoker(() => { progressBar.MarqueeAnimationSpeed = 30; downloadLabel.Text = "Dosyalar kontrol ediliyor.."; buttonOyna.Enabled = false; }));
+            this.BeginInvoke((MethodInvoker)delegate {
+                progressBar.MarqueeAnimationSpeed = 30; downloadLabel.Text = "Dosyalar kontrol ediliyor.."; buttonOyna.Enabled = false;
+                progressBar.Refresh(); downloadLabel.Refresh(); buttonOyna.Refresh();
+            });
             string file_location;
-            foreach (string file in Variables.files)
+            Thread thr = new Thread(() =>
             {
-                file_location = fiveMLocation + file;
-                if (!File.Exists(file_location))
+                foreach (string file in Variables.files)
                 {
-                    using (WebClient wc = new WebClient())
+                    file_location = fiveMLocation + file;
+                    if (!File.Exists(file_location))
                     {
-                        try
+                        using (WebClient wc = new WebClient())
                         {
-                            System.IO.Directory.CreateDirectory(file_location.Substring(0, file_location.LastIndexOf('\\')));
-                            wc.DownloadFile(Variables.dl_link + file.Replace("\\", "/"), file_location);
-                        }
-                        catch (Exception ex)
-                        {
-                            Console.WriteLine(ex.Message);
+                            try
+                            {
+                                System.IO.Directory.CreateDirectory(file_location.Substring(0, file_location.LastIndexOf('\\')));
+                                wc.DownloadFile(Variables.dl_link + file.Replace("\\", "/"), file_location);
+                            }
+                            catch (Exception ex)
+                            {
+                                Console.WriteLine(ex.Message);
+                            }
                         }
                     }
                 }
-            }
-            BeginInvoke(new MethodInvoker(() => { progressBar.MarqueeAnimationSpeed = 0; downloadLabel.Text = "Dosyalar kontrol edildi."; buttonOyna.Enabled = true; }));
+                this.BeginInvoke((MethodInvoker)delegate {
+                    progressBar.MarqueeAnimationSpeed = 0; downloadLabel.Text = "Dosyalar kontrol edildi."; buttonOyna.Enabled = true;
+                    progressBar.Refresh(); downloadLabel.Refresh(); buttonOyna.Refresh();
+                });
+            });
+            thr.Start();
 
             Variables.SetVariables();
 
@@ -148,17 +172,21 @@ namespace EightbornLauncher
 
         private void DoUpdate()
         {
-            progressBar.Visible = true;
-            downloadLabel.Visible = true;
-            downloadLabel.Text = "Güncelleme indiriliyor..";
-
-            using (WebClient wc = new WebClient())
+            this.BeginInvoke((MethodInvoker)delegate {
+                progressBar.MarqueeAnimationSpeed = 30; downloadLabel.Text = "Güncelleme indiriliyor.."; buttonOyna.Enabled = false;
+                progressBar.Refresh(); downloadLabel.Refresh(); buttonOyna.Refresh();
+            });
+            Thread thr = new Thread(() =>
             {
-                wc.DownloadFile(Variables.launcher_link, "EightbornLauncher2.exe");
-            }
+                using (WebClient wc = new WebClient())
+                {
+                    wc.DownloadFile(Variables.launcher_link, "EightbornLauncher2.exe");
+                }
 
-            string cmd = "/C taskkill /IM "+ System.AppDomain.CurrentDomain.FriendlyName.ToString() + " && timeout 1 >nul && del "+ System.AppDomain.CurrentDomain.FriendlyName.ToString() + " && ren EightbornLauncher2.exe EightbornLauncher.exe && start EightbornLauncher.exe";
-            Process.Start("cmd", cmd);
+                string cmd = "/C taskkill /IM " + System.AppDomain.CurrentDomain.FriendlyName.ToString() + " && timeout 1 >nul && del " + System.AppDomain.CurrentDomain.FriendlyName.ToString() + " && ren EightbornLauncher2.exe EightbornLauncher.exe && start EightbornLauncher.exe";
+                Process.Start("cmd", cmd);
+            });
+            thr.Start();
         }
 
         private void ButtonSite_Click(object sender, EventArgs e)
