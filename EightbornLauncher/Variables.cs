@@ -5,7 +5,7 @@ namespace EightbornLauncher
 {
     class Variables
     {
-        public static string version = "v 1.0.9";
+        public static string version = "v 1.1.1";
         public static string version_link = "http://eightbornv.site/eightborn-launcher/version.txt";
         public static string launcher_link = "http://eightbornv.site/eightborn-launcher/launcher.exe";
         public static string webbrowser_link = "http://eightbornv.site/eightborn-launcher/html/index.html";
@@ -29,7 +29,7 @@ namespace EightbornLauncher
         };
         public static bool status = true;
         public static bool server_status = true;
-        private static readonly string server_ip = "185.126.178.60:30120";
+        private static readonly string server_ip = "185.126.178.43:30130";
         public static System.Drawing.Bitmap[] backgrounds = new System.Drawing.Bitmap[]
             {
                 Properties.Resources._707058,
